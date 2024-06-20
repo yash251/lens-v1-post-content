@@ -16,17 +16,11 @@ dataSources:
       apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
-        - AdminChanged
-        - BeaconUpgraded
-        - Upgraded
+        - PostCreated
       abis:
         - name: LensProxy
           file: ./abis/LensProxy.json
       eventHandlers:
-        - event: AdminChanged(address,address)
-          handler: handleAdminChanged
-        - event: BeaconUpgraded(indexed address)
-          handler: handleBeaconUpgraded
-        - event: Upgraded(indexed address)
-          handler: handleUpgraded
+        - event: PostCreated(indexed uint256,indexed uint256,string,address,bytes,address,bytes,uint256)
+          handler: handlePostCreated
       file: ./src/lens-proxy.ts
