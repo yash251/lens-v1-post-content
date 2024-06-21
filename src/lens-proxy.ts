@@ -1,8 +1,8 @@
-import { Bytes, DataSourceContext, DataSourceTemplate } from "@graphprotocol/graph-ts";
+import { Bytes, dataSource, DataSourceContext, DataSourceTemplate } from "@graphprotocol/graph-ts";
 import {
   PostCreated as PostCreatedEvent
 } from "../generated/LensProxy/LensProxy"
-import { PostCreated } from "../generated/schema"
+import { PostCreated, PostContent } from "../generated/schema"
 
 // POST_ID_KEY will be used as the key for a key-value pair passed into the
 // `context` argument in the createWithContext(name: string, params: string[], context: DataSourceContext)
@@ -57,4 +57,24 @@ export function handlePostCreated(event: PostCreatedEvent): void {
     let hash = entity.contentURI.substr(ipfsIndex + 6);
     DataSourceTemplate.createWithContext("IpfsContent", [hash], context);
   }
+}
+
+export function handlePostContent(content: Bytes): void {
+  // Remember DataSourceTemplate.createWithContext()? We can access
+  // everything we just passed into that method here!
+  // Gather the `hash` aka the ID with dataSource.stringParam()
+  // Gather the `context` that has our ID encoded as Bytes as dataSource.context(),
+  // then decode it.
+  let hash = dataSource.stringParam();
+  let context = dataSource.context();
+  let id = context.getBytes(POST_ID_KEY);
+
+  // We pass in the same ID used in the previous `PostCreated` handler here to
+  // link the on-chain PostCreated ID with the off-chain PostContent id.
+  let post = new PostContent(id);
+
+  post.hash = hash;
+  post.content = content.toString();
+
+  post.save();
 }
